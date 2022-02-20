@@ -1,6 +1,6 @@
-declare var self: ServiceWorkerGlobalScope;
-
-import { a } from '../common/types';
+/// <reference lib="webworker" />
+export default null;
+declare let self: ServiceWorkerGlobalScope;
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {

@@ -10,21 +10,20 @@ function makeId<T>(id: string): Id<T> {
 }
 
 abstract class Unique<T, N = string> {
-    constructor(public readonly name: N, public readonly id: Id<T>) {}
+    public id: Id<T>;
+    constructor(public readonly name: N, unconfirmedId: string) {
+        this.id = makeId(unconfirmedId);
+    }
 }
 
 class Wine extends Unique<Wine> {
     constructor(name: string, id: string, public winery: Winery) {
-        super(name, makeId<Wine>(id));
+        super(name, id);
     }
 }
 
 class Winery extends Unique<Winery> {
-    constructor(
-        name: string,
-        id: Id<Winery>,
-        public readonly wines: Wine[] = []
-    ) {
+    constructor(name: string, id: string, public readonly wines: Wine[] = []) {
         super(name, id);
     }
 }
@@ -32,7 +31,7 @@ class Winery extends Unique<Winery> {
 class Trip extends Unique<Trip> {
     constructor(
         name: string,
-        id: Id<Trip>,
+        id: string,
         public users: User[] = [],
         public wineries: Winery[] = []
     ) {
@@ -40,15 +39,18 @@ class Trip extends Unique<Trip> {
     }
 }
 
-interface User extends Unique<User> {
-    trip: Trip;
+class User extends Unique<User> {
+    public trip: Trip;
 }
 
 app.use('/public', express.static(path.join(__dirname, '../../public')));
-app.use('/client', express.static(path.join(__dirname, '../../lib', 'client')));
+app.use(
+    '/client',
+    express.static(path.join(__dirname, '../../dist', 'client'))
+);
 
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
     res.sendFile(path.join(__dirname, '../../public', 'index.html'));
 });
 
-app.listen(8000, () => 'Now listening on port 8000!');
+app.listen(process.env.PORT || 3000, () => 'Now listening on port 3333!');
