@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link rel="manifest" href="public/manifest/manifest.json" />
+    <link rel="icon" type="image/x-icon" href="/public/favicon.ico">
     <!-- ios support -->
     <link rel="apple-touch-icon" href="public/manifest/android/android-launchericon-48-48  " />
     <link rel="apple-touch-icon" href="public/manifest/android/android-launchericon-72-72" />
@@ -19,6 +20,8 @@
   </head>
   <body>
     <h1>Wine App</h1>
-    <script type="module" src="client/serviceworker.js"></script>
+    <% for(var jsLocation of Object.values(jsManifest)) { %>
+        <script type="text/javascript" src="<%- jsLocation %>"></script>
+    <% } %>
   </body>
 </html>

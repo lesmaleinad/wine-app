@@ -1,7 +1,9 @@
 import express from 'express';
 import path from 'path';
+import { getManifest } from './routes/manifest';
 
 const app = express();
+app.set('view engine', 'ejs');
 
 type Id<T> = string & { type: T };
 
@@ -49,8 +51,22 @@ app.use(
     express.static(path.join(__dirname, '../../dist', 'client'))
 );
 
-app.get('/', (_, res) => {
-    res.sendFile(path.join(__dirname, '../../public', 'index.html'));
+app.use(
+    '/statics',
+    express.static(path.join(__dirname, '../../dist', 'statics'))
+);
+app.get('/worker-bundle.js', (_, res) => {
+    res.sendFile(
+        path.join(__dirname, '../../dist', 'statics', 'worker-bundle.js')
+    );
 });
 
-app.listen(process.env.PORT || 3000, () => 'Now listening on port 3333!');
+app.get('/', (_, res) => {
+    res.render(path.join(__dirname, '../../views', 'index.ejs'), {
+        jsManifest: getManifest(),
+    });
+});
+
+const port = process.env.PORT || 3000;
+
+app.listen(port, () => `Now listening on port ${port}!`);
