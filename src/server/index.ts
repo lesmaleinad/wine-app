@@ -1,9 +1,8 @@
+import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import express from 'express';
 import path from 'path';
-import { getManifest } from './routes/manifest';
-
-const app = express();
-app.set('view engine', 'ejs');
+import { AppModule } from './app/app.module';
 
 type Id<T> = string & { type: T };
 
@@ -45,28 +44,25 @@ class User extends Unique<User> {
     public trip: Trip;
 }
 
-app.use('/public', express.static(path.join(__dirname, '../../public')));
-app.use(
-    '/client',
-    express.static(path.join(__dirname, '../../dist', 'client'))
-);
+// app.get('/', (_, res) => {
+//     res.render(path.join(__dirname, '../../views', 'index.ejs'), {
+//         jsManifest: getManifest(),
+//     });
+// });
 
-app.use(
-    '/statics',
-    express.static(path.join(__dirname, '../../dist', 'statics'))
-);
-app.get('/worker-bundle.js', (_, res) => {
-    res.sendFile(
-        path.join(__dirname, '../../dist', 'statics', 'worker-bundle.js')
-    );
-});
-
-app.get('/', (_, res) => {
-    res.render(path.join(__dirname, '../../views', 'index.ejs'), {
-        jsManifest: getManifest(),
+async function bootstrap() {
+    const port = process.env.PORT || 3000;
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {});
+    app.setViewEngine('ejs');
+    app.useStaticAssets(path.join(__dirname, '../../public'), {
+        prefix: '/public',
     });
-});
+    app.useStaticAssets(path.join(__dirname, '../../dist', 'statics'), {
+        prefix: '/statics',
+    });
+    await app.listen(port, () => console.log(`Now listening on port ${port}!`));
+}
 
-const port = process.env.PORT || 3000;
+bootstrap();
 
-app.listen(port, () => `Now listening on port ${port}!`);
+// app.listen(port, () => `Now listening on port ${port}!`);

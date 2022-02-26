@@ -17,7 +17,7 @@ const targets = IS_DEV ? { chrome: '79', firefox: '72' } : '> 0.25%, not dead';
 
 const config: Configuration = {
     mode: IS_DEV ? 'development' : 'production',
-    devtool: IS_DEV ? 'source-map' : false,
+    devtool: IS_DEV ? 'inline-source-map' : false,
     entry: {
         main: './src/client/client',
         worker: './src/client/serviceworker',
