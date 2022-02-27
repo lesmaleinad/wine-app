@@ -26,7 +26,7 @@ export class AppController {
                 path.join(process.cwd(), 'dist', 'statics', 'manifest.json'),
                 'utf-8'
             );
-            this.manifestCache = JSON.parse(manifestFile);
+            this.manifestCache = JSON.parse(manifestFile) as JsManifest;
         }
 
         return this.manifestCache;

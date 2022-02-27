@@ -19,7 +19,7 @@ const config: Configuration = {
     mode: IS_DEV ? 'development' : 'production',
     devtool: IS_DEV ? 'inline-source-map' : false,
     entry: {
-        main: './src/client/client',
+        main: './src/client/index',
         worker: './src/client/serviceworker',
     },
     output: {
@@ -30,6 +30,9 @@ const config: Configuration = {
     },
     resolve: {
         extensions: ['.js', '.ts', '.tsx'],
+        alias: {
+            common: path.resolve(__dirname, 'src/common'),
+        },
     },
     optimization: {
         minimize: !IS_DEV,

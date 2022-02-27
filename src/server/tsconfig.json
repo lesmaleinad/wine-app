@@ -18,6 +18,7 @@
         "incremental": true,
         "composite": true
     },
+    "extends": "../../tsconfig.json",
     "include": ["**/*.ts"],
     "exclude": ["**/*.test.ts"],
     "references": [{ "path": "../common" }]

@@ -20,6 +20,14 @@
   </head>
   <body>
     <h1>Wine App</h1>
+    <div id="root"></div>
+    <% if(process.env.IS_DEV !== '1') { %>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <% } else { %>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+		<% } %>
     <% for(var jsLocation of Object.values(jsManifest)) { %>
       <script type="text/javascript" src="<%- jsLocation %>"></script>
     <% } %>
