@@ -1,12 +1,12 @@
-import { SocketWineGetAllResponse } from './../../../dist/shared/socket.d';
+import { SocketServer } from '../types/socket';
 import {
     SocketWine,
     SocketWineRequest,
     SocketWineResponse,
+    SocketWineGetAllResponse,
 } from 'common/socket';
 import { WinesService } from '../services/wines/wines.service';
 import { Socket } from 'socket.io-client';
-import { Server } from 'socket.io';
 import {
     ConnectedSocket,
     MessageBody,
@@ -15,12 +15,11 @@ import {
     WebSocketServer,
     WsResponse,
 } from '@nestjs/websockets';
-import { Wine, Winery } from 'common/types';
 
 @WebSocketGateway()
 export class EventsGateway {
     @WebSocketServer()
-    server: Server | undefined;
+    server: SocketServer | undefined;
 
     constructor(private readonly winesService: WinesService) {}
 
@@ -37,7 +36,7 @@ export class EventsGateway {
     @SubscribeMessage('wines')
     public handleWineAction(
         @MessageBody() data: SocketWineRequest
-    ): WsResponse<SocketWineResponse> {
+    ): WsResponse<SocketWineResponse> | boolean {
         console.log(data);
         switch (data.request) {
             case SocketWine.GetAll:
@@ -45,22 +44,19 @@ export class EventsGateway {
 
             case SocketWine.Add:
                 const { name } = data.data;
-                const wine = new Wine(
-                    name,
-                    Math.random().toString(),
-                    {} as Winery
-                );
-                this.winesService.addWine(wine);
-                return this.getAllWinesEvent();
+                this.winesService.addWineByName(name);
+                return this.emitAllWinesToServer();
 
             case SocketWine.Delete:
                 const wineId = data.data;
                 this.winesService.deleteWine(wineId);
-                return this.getAllWinesEvent();
+                return this.emitAllWinesToServer();
         }
     }
 
-    private getAllWinesEvent(): WsResponse<SocketWineGetAllResponse> {
+    private getAllWinesEvent(): WsResponse<SocketWineGetAllResponse> & {
+        event: 'wines';
+    } {
         return {
             event: 'wines',
             data: {
@@ -68,5 +64,13 @@ export class EventsGateway {
                 data: this.winesService.getAllWines(),
             },
         };
+    }
+
+    private emitAllWinesToServer(): boolean {
+        const event = this.getAllWinesEvent();
+        return !!this.server?.sockets.emit(
+            event.event,
+            this.getAllWinesEvent().data
+        );
     }
 }

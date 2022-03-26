@@ -1,5 +1,6 @@
-import { Id, Wine } from 'common/types';
+import { Id, Wine, Winery } from 'common/types';
 import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class WinesService {
@@ -11,6 +12,11 @@ export class WinesService {
 
     public getWineById(id: Id<Wine>): Wine | undefined {
         return this.wines.find((wine) => wine.id === id);
+    }
+
+    public addWineByName(name: string): Wine {
+        const wine = new Wine(name, randomUUID(), {} as Winery);
+        return this.addWine(wine);
     }
 
     public addWine(newWine: Wine): Wine {

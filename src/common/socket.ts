@@ -1,3 +1,5 @@
+import { Socket } from 'socket.io';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { Wine, WinePostBody, Id } from './types';
 
 export enum SocketWine {

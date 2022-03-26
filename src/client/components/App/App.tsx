@@ -1,12 +1,9 @@
 import { plainToInstance } from 'class-transformer';
 import { Id, Wine } from 'common/types';
-import {
-    SocketWine,
-    SocketWineRequest,
-    SocketWineResponse,
-} from 'common/socket';
-import { io, Socket } from 'socket.io-client';
+import { SocketWine, SocketWineResponse } from 'common/socket';
+import { io } from 'socket.io-client';
 import React, { useEffect, useState } from 'react';
+import { ClientSocket } from '../../types/socket';
 
 const initialWines = fetch('/wines').then(async (response) => {
     const wines = await response.json();
@@ -15,8 +12,7 @@ const initialWines = fetch('/wines').then(async (response) => {
 });
 
 export default function App() {
-    const [socket, setSocket] =
-        useState<Socket<{ 'wines': (req: SocketWineRequest) => void }>>();
+    const [socket, setSocket] = useState<ClientSocket>();
     const [wines, setWines] = useState<Wine[]>([]);
 
     useEffect(() => {
@@ -24,26 +20,21 @@ export default function App() {
     }, []);
 
     useEffect(() => {
-        const ws = io(window.location.toString());
+        const ws: ClientSocket = io(window.location.toString());
         ws.on('connect', () => {
             console.log('WS connected');
-            ws.on('events', (data) => {
-                console.log(data);
-            });
-            ws.on('exception', (data) => {
-                console.log('event', data);
-            });
             setSocket(ws);
-        });
-        ws.on('wines', ({ type, data }: SocketWineResponse) => {
-            switch (type) {
-                case SocketWine.GetAll:
-                    setWines(plainToInstance(Wine, data));
-            }
         });
         ws.on('disconnect', () => {
             console.log('WS disconnected');
             setSocket(undefined);
+        });
+
+        ws.on('wines', ({ type, data }) => {
+            switch (type) {
+                case SocketWine.GetAll:
+                    setWines(plainToInstance(Wine, data));
+            }
         });
 
         return () => {
