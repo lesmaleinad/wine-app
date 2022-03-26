@@ -16,7 +16,11 @@
         "moduleResolution": "node",
         "types": ["node"],
         "incremental": true,
-        "composite": true
+        "composite": true,
+        "baseUrl": ".",
+        "paths": {
+            "common/*": ["../common/*"]
+        }
     },
     "extends": "../../tsconfig.json",
     "include": ["**/*.ts"],

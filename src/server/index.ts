@@ -1,3 +1,4 @@
+import 'module-alias/register';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import path from 'path';
@@ -5,7 +6,9 @@ import { AppModule } from './app/app.module';
 
 async function bootstrap() {
     const port = process.env['PORT'] || 3000;
-    const app = await NestFactory.create<NestExpressApplication>(AppModule, {});
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+        logger: ['debug', 'error', 'verbose', 'log', 'warn'],
+    });
     app.setViewEngine('ejs');
     app.useStaticAssets(path.join(__dirname, '../../public'), {
         prefix: '/public',

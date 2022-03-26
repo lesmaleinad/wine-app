@@ -4,14 +4,26 @@ function makeId<T>(id: string): Id<T> {
     return <Id<T>>id;
 }
 
-export abstract class Unique<T, N = string> {
-    public id: Id<T>;
-    constructor(public readonly name: N, unconfirmedId: string) {
+export abstract class Unique<T> {
+    public readonly label: string;
+    public readonly id: Id<T>;
+    constructor(name: string, unconfirmedId: string) {
+        this.label = name;
         this.id = makeId(unconfirmedId);
     }
 }
 
+export interface WinePostBody {
+    'name': string;
+}
+
 export class Wine extends Unique<Wine> {
+    public static postBody(name: string): WinePostBody {
+        return {
+            'name': name,
+        };
+    }
+
     constructor(name: string, id: string, public winery: Winery) {
         super(name, id);
     }

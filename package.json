@@ -81,12 +81,17 @@
         "@nestjs/common": "^8.3.1",
         "@nestjs/core": "^8.3.1",
         "@nestjs/platform-express": "^8.3.1",
+        "class-transformer": "^0.5.1",
         "dotenv": "^16.0.0",
         "ejs": "^3.1.6",
         "express": "^4.17.1",
+        "module-alias": "^2.2.2",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "reflect-metadata": "^0.1.13",
         "rxjs": "^7.5.4"
+    },
+    "_moduleAliases": {
+        "common": "dist/shared/"
     }
 }
