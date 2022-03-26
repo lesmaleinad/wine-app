@@ -1,5 +1,11 @@
 import { plainToInstance } from 'class-transformer';
 import { Id, Wine } from 'common/types';
+import {
+    SocketWine,
+    SocketWineRequest,
+    SocketWineResponse,
+} from 'common/socket';
+import { io, Socket } from 'socket.io-client';
 import React, { useEffect, useState } from 'react';
 
 const initialWines = fetch('/wines').then(async (response) => {
@@ -9,37 +15,58 @@ const initialWines = fetch('/wines').then(async (response) => {
 });
 
 export default function App() {
+    const [socket, setSocket] =
+        useState<Socket<{ 'wines': (req: SocketWineRequest) => void }>>();
     const [wines, setWines] = useState<Wine[]>([]);
 
     useEffect(() => {
         initialWines.then(setWines);
     }, []);
 
-    async function addWine() {
-        const name = 'Wine ' + (wines.length + 1);
-        const response = await fetch('/wines', {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            method: 'POST',
-            body: JSON.stringify(Wine.postBody(name)),
+    useEffect(() => {
+        const ws = io(window.location.toString());
+        ws.on('connect', () => {
+            console.log('WS connected');
+            ws.on('events', (data) => {
+                console.log(data);
+            });
+            ws.on('exception', (data) => {
+                console.log('event', data);
+            });
+            setSocket(ws);
         });
-        if (response.ok) {
-            const newWine = plainToInstance(Wine, await response.json());
-            const newWines = wines.concat(newWine);
-            setWines(newWines);
+        ws.on('wines', ({ type, data }: SocketWineResponse) => {
+            switch (type) {
+                case SocketWine.GetAll:
+                    setWines(plainToInstance(Wine, data));
+            }
+        });
+        ws.on('disconnect', () => {
+            console.log('WS disconnected');
+            setSocket(undefined);
+        });
+
+        return () => {
+            ws.disconnect();
+        };
+    }, []);
+
+    function addWine() {
+        const name = 'Wine ' + (wines.length + 1);
+        if (socket) {
+            socket.emit('wines', {
+                request: SocketWine.Add,
+                data: Wine.postBody(name),
+            });
         }
     }
 
-    async function removeWineById(wineId: Id<Wine>) {
-        const response = await fetch('/wines/' + wineId, {
-            method: 'DELETE',
-        });
-        if (response.ok) {
-            const newWines = wines.filter((wine) => wine.id !== wineId);
-            setWines(newWines);
-        } else {
-            throw new Error('NO WINE WAS FOUND WITH ID: ' + wineId);
+    function removeWineById(wineId: Id<Wine>) {
+        if (socket) {
+            socket.emit('wines', {
+                request: SocketWine.Delete,
+                data: wineId,
+            });
         }
     }
 

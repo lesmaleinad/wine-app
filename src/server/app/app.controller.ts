@@ -21,7 +21,6 @@ export class AppController {
 
     private getManifest(): JsManifest {
         if (!this.manifestCache || process.env['IS_DEV']) {
-            // read from file system
             const manifestFile = fs.readFileSync(
                 path.join(process.cwd(), 'dist', 'statics', 'manifest.json'),
                 'utf-8'
